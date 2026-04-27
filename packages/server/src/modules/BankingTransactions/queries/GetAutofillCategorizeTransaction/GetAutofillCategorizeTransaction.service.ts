@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { castArray, first, uniq } from 'lodash';
 import { GetAutofillCategorizeTransctionTransformer } from './GetAutofillCategorizeTransactionTransformer';
+import { BookkeeperSuggestionService } from './BookkeeperSuggestion.service';
 import { UncategorizedBankTransaction } from '@/modules/BankingTransactions/models/UncategorizedBankTransaction';
 import { TransformerInjectable } from '@/modules/Transformer/TransformerInjectable.service';
 import { TenantModelProxy } from '@/modules/System/models/TenantBaseModel';
@@ -9,6 +10,7 @@ import { TenantModelProxy } from '@/modules/System/models/TenantBaseModel';
 export class GetAutofillCategorizeTransactionService {
   constructor(
     private readonly transformer: TransformerInjectable,
+    private readonly bookkeeperSuggestionService: BookkeeperSuggestionService,
 
     @Inject(UncategorizedBankTransaction.name)
     private readonly uncategorizedBankTransactionModel: TenantModelProxy<
@@ -33,6 +35,10 @@ export class GetAutofillCategorizeTransactionService {
         .withGraphFetched('recognizedTransaction.assignAccount')
         .withGraphFetched('recognizedTransaction.bankRule')
         .throwIfNotFound();
+    const bookkeeperSuggestion =
+      await this.bookkeeperSuggestionService.suggest(
+        uncategorizedTransactions,
+      );
 
     return this.transformer.transform(
       {},
@@ -40,6 +46,7 @@ export class GetAutofillCategorizeTransactionService {
       {
         uncategorizedTransactions,
         firstUncategorizedTransaction: first(uncategorizedTransactions),
+        bookkeeperSuggestion,
       },
     );
   }

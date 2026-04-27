@@ -51,4 +51,41 @@ export class GetAutofillCategorizeTransactionResponseDto {
 
   @ApiPropertyOptional({ description: 'Assigned memo from recognition' })
   memo?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Suggested description for the categorized transaction',
+    example: 'Starbucks',
+  })
+  description?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Suggestion source when no explicit rule matched',
+    example: 'bookkeeper',
+  })
+  suggestionSource?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Narrative explanation for the suggestion',
+    example:
+      'Matched "starbucks" against meals and entertainment spending and reused the Meals & Entertainment account',
+  })
+  suggestionReason?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Confidence score for the suggestion, from 0 to 1',
+    example: 0.91,
+  })
+  suggestionConfidence?: number | null;
+
+  @ApiProperty({
+    description: 'Whether the suggestion is strong enough for auto-apply',
+    example: true,
+  })
+  suggestionShouldAutoApply: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Best-fit account name for the suggestion',
+    example: 'Meals & Entertainment',
+  })
+  suggestedAccountName?: string | null;
 }

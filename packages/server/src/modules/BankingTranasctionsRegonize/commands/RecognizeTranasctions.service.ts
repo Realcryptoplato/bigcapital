@@ -7,7 +7,6 @@ import { RecognizeTransactionsCriteria } from '../_types';
 import { BankRule } from '@/modules/BankRules/models/BankRule';
 import { RecognizedBankTransaction } from '../models/RecognizedBankTransaction';
 import { UncategorizedBankTransaction } from '@/modules/BankingTransactions/models/UncategorizedBankTransaction';
-import { transformToMapBy } from '@/utils/transform-to-map-by';
 import { TenantModelProxy } from '@/modules/System/models/TenantBaseModel';
 
 @Injectable()
@@ -99,21 +98,18 @@ export class RecognizeTranasctionsService {
         q.orderBy('order', 'asc');
       });
 
-    const bankRulesByAccountId = transformToMapBy(
-      bankRules,
-      'applyIfAccountId',
-    );
     // Try to recognize the transaction.
     const regonizeTransaction = async (
       transaction: UncategorizedBankTransaction,
     ) => {
-      const allAccountsBankRules = bankRulesByAccountId.get(`null`);
-      const accountBankRules = bankRulesByAccountId.get(
-        `${transaction.accountId}`,
+      const scopedBankRules = bankRules.filter(
+        (rule) =>
+          rule.applyIfAccountId === null ||
+          rule.applyIfAccountId === transaction.accountId,
       );
       const recognizedBankRule = bankRulesMatchTransaction(
         transaction,
-        accountBankRules,
+        scopedBankRules,
       );
       if (recognizedBankRule) {
         await this.markBankRuleAsRecognized(

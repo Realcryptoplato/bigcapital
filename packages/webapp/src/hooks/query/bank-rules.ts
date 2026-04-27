@@ -583,13 +583,21 @@ export interface GetAutofillCategorizeTransaction {
   accountId: number | null;
   amount: number;
   category: string | null;
+  creditAccountId: number | null;
   date: Date;
+  description?: string | null;
   formattedAmount: string;
   formattedDate: string;
   isRecognized: boolean;
   recognizedByRuleId: number | null;
   recognizedByRuleName: string | null;
   referenceNo: null | string;
+  suggestedAccountName?: string | null;
+  suggestionConfidence?: number | null;
+  suggestionReason?: string | null;
+  suggestionShouldAutoApply?: boolean;
+  suggestionSource?: string | null;
+  transactionType: string;
   isDepositTransaction: boolean;
   isWithdrawalTransaction: boolean;
 }

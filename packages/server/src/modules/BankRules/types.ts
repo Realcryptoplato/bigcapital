@@ -64,6 +64,7 @@ export type BankRuleComparator =
   | 'contains'
   | 'equals'
   | 'not_contains'
+  | 'not_contain'
   | 'equal'
   | 'bigger'
   | 'bigger_or_equal'

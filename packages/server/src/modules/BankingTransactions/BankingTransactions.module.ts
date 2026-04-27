@@ -33,6 +33,7 @@ import { BankingUncategorizedTransactionsController } from './controllers/Bankin
 import { BankingPendingTransactionsController } from './controllers/BankingPendingTransactions.controller';
 import { GetPendingBankAccountTransactions } from './queries/GetPendingBankAccountTransaction.service';
 import { GetAutofillCategorizeTransactionService } from './queries/GetAutofillCategorizeTransaction/GetAutofillCategorizeTransaction.service';
+import { BookkeeperSuggestionService } from './queries/GetAutofillCategorizeTransaction/BookkeeperSuggestion.service';
 
 const models = [
   RegisterTenancyModel(UncategorizedBankTransaction),
@@ -77,6 +78,7 @@ const models = [
     GetUncategorizedBankTransactionService,
     GetPendingBankAccountTransactions,
     GetAutofillCategorizeTransactionService,
+    BookkeeperSuggestionService,
   ],
   exports: [
     ...models,

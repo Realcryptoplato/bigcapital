@@ -72,6 +72,7 @@ const matchTextCondition = (
 
       return fieldValue.includes(conditionValue);
     case BankRuleConditionComparator.NotContain:
+    case 'not_contain':
       return !transactionValue?.includes(condition.value.toString());
     default:
       return false;

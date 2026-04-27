@@ -16,11 +16,17 @@ export class GetAutofillCategorizeTransctionTransformer extends Transformer {
       'creditAccountId',
       'debitAccountId',
       'referenceNo',
+      'description',
       'transactionType',
       'recognizedByRuleId',
       'recognizedByRuleName',
       'isWithdrawalTransaction',
       'isDepositTransaction',
+      'suggestionSource',
+      'suggestionReason',
+      'suggestionConfidence',
+      'suggestionShouldAutoApply',
+      'suggestedAccountName',
     ];
   };
 
@@ -102,7 +108,9 @@ export class GetAutofillCategorizeTransctionTransformer extends Transformer {
   public creditAccountId() {
     return (
       this.options.firstUncategorizedTransaction?.recognizedTransaction
-        ?.assignedAccountId || null
+        ?.assignedAccountId ||
+      this.options.bookkeeperSuggestion?.creditAccountId ||
+      null
     );
   }
 
@@ -126,7 +134,16 @@ export class GetAutofillCategorizeTransctionTransformer extends Transformer {
 
     return (
       assignedCategory ||
+      this.options.bookkeeperSuggestion?.transactionType ||
       (this.isDepositTransaction() ? 'other_income' : 'other_expense')
+    );
+  }
+
+  public description() {
+    return (
+      this.options.bookkeeperSuggestion?.description ||
+      this.options.firstUncategorizedTransaction?.description ||
+      null
     );
   }
 
@@ -172,5 +189,25 @@ export class GetAutofillCategorizeTransctionTransformer extends Transformer {
       this.options.firstUncategorizedTransaction?.recognizedTransaction
         ?.bankRule?.name || null
     );
+  }
+
+  public suggestionSource() {
+    return this.options.bookkeeperSuggestion?.source || null;
+  }
+
+  public suggestionReason() {
+    return this.options.bookkeeperSuggestion?.reason || null;
+  }
+
+  public suggestionConfidence() {
+    return this.options.bookkeeperSuggestion?.confidence || null;
+  }
+
+  public suggestionShouldAutoApply() {
+    return this.options.bookkeeperSuggestion?.shouldAutoApply || false;
+  }
+
+  public suggestedAccountName() {
+    return this.options.bookkeeperSuggestion?.suggestedAccountName || null;
   }
 }

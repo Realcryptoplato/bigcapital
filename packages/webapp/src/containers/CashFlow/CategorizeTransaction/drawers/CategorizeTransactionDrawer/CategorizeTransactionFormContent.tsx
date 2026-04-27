@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react';
 import styled from 'styled-components';
-import { FormGroup } from '@blueprintjs/core';
+import { Callout, FormGroup, Intent, Tag } from '@blueprintjs/core';
 import { Box, FFormGroup, FSelect } from '@/components';
 import { getAddMoneyInOptions, getAddMoneyOutOptions } from '@/constants';
 import { useFormikContext } from 'formik';
@@ -18,6 +18,17 @@ const Title = styled('h3')`
   color: #cd4246;
 `;
 
+const SuggestionCallout = styled(Callout)`
+  margin-bottom: 18px;
+`;
+
+const SuggestionHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+`;
+
 export function CategorizeTransactionFormContent() {
   const { autofillCategorizeValues } = useCategorizeTransactionBoot();
 
@@ -32,6 +43,31 @@ export function CategorizeTransactionFormContent() {
       <FormGroup label={'Amount'} inline>
         <Title>{formattedAmount}</Title>
       </FormGroup>
+
+      {autofillCategorizeValues?.suggestionSource === 'bookkeeper' &&
+      !autofillCategorizeValues?.isRecognized ? (
+        <SuggestionCallout intent={Intent.PRIMARY}>
+          <SuggestionHeader>
+            <Tag minimal intent={Intent.PRIMARY}>
+              Bookkeeper
+            </Tag>
+            {autofillCategorizeValues?.suggestionConfidence ? (
+              <Tag minimal>
+                {Math.round(
+                  autofillCategorizeValues.suggestionConfidence * 100,
+                )}
+                % confidence
+              </Tag>
+            ) : null}
+            {autofillCategorizeValues?.suggestionShouldAutoApply ? (
+              <Tag minimal intent={Intent.SUCCESS}>
+                Ready to auto-apply
+              </Tag>
+            ) : null}
+          </SuggestionHeader>
+          <div>{autofillCategorizeValues?.suggestionReason}</div>
+        </SuggestionCallout>
+      ) : null}
 
       <FFormGroup name={'category'} label={'Category'} fastField inline>
         <FSelect
