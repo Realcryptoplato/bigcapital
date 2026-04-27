@@ -117,6 +117,13 @@ export const getPreferenceRoutes = () => [
     exact: true,
   },
   {
+    path: `${BASE_URL}/ai-bookkeeper`,
+    component: lazy(
+      () => import('@/containers/Preferences/AIBookkeeper/AIBookkeeper'),
+    ),
+    exact: true,
+  },
+  {
     path: `${BASE_URL}/items`,
     component: lazy(() => import('@/containers/Preferences/Item')),
     exact: true,

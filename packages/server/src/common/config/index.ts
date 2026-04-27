@@ -21,6 +21,7 @@ import redis from './redis';
 import queue from './queue';
 import bullBoard from './bull-board';
 import bookkeeper from './bookkeeper';
+import ai from './ai';
 
 export const config = [
   app,
@@ -46,4 +47,5 @@ export const config = [
   queue,
   bullBoard,
   bookkeeper,
+  ai,
 ];

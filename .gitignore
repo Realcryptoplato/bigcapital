@@ -3,8 +3,27 @@ node_modules/
 # Docker volumes data directory
 /data
 
-# Production env file 
+# Environment and secret files
 .env
+.env.*
+*.env
+*.env.*
+!.env.example
+!*.env.example
+!.env.*.example
+
+# Local deployment overrides
+docker-compose.override.yml
+compose.override.yml
+ops/**/.env
+ops/**/*.env
+ops/**/secrets/
+ops/**/secret/
+ops/**/private/
+ops/**/*secret*
+ops/**/*credential*
+ops/**/*token*
+ops/**/*key*
 
 test-results/
 .qodo

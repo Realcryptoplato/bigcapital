@@ -183,6 +183,65 @@ export const SettingsOptions = {
       type: 'boolean',
     },
   },
+  bookkeeper: {
+    enabled: {
+      type: 'boolean',
+    },
+    auto_mode: {
+      type: 'boolean',
+    },
+    classify_all_transactions: {
+      type: 'boolean',
+    },
+    interview_enabled: {
+      type: 'boolean',
+    },
+    chat_enabled: {
+      type: 'boolean',
+    },
+    bulk_classification_enabled: {
+      type: 'boolean',
+    },
+    classification_mode: {
+      type: 'string',
+    },
+    auto_create_rules: {
+      type: 'boolean',
+    },
+    auto_create_expense_accounts: {
+      type: 'boolean',
+    },
+    amazon_parser_enabled: {
+      type: 'boolean',
+    },
+    tax_tools_enabled: {
+      type: 'boolean',
+    },
+    auto_post_threshold: {
+      type: 'number',
+    },
+    review_threshold: {
+      type: 'number',
+    },
+    require_review_amount: {
+      type: 'number',
+    },
+    deduction_posture: {
+      type: 'string',
+    },
+    grey_area_categories: {
+      type: 'string',
+    },
+    monthly_auto_expense_target: {
+      type: 'number',
+    },
+    annual_auto_expense_target: {
+      type: 'number',
+    },
+    interview_context: {
+      type: 'string',
+    },
+  },
   credit_note: {
     next_number: {
       type: 'string',

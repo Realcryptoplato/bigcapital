@@ -131,6 +131,17 @@ export function useSettingCashFlow(props) {
 }
 
 /**
+ * Retrieve AI bookkeeper settings.
+ */
+export function useSettingsBookkeeper(props) {
+  return useSettingsQuery(
+    [t.SETTING, 'BOOKKEEPER'],
+    { group: 'bookkeeper' },
+    props,
+  );
+}
+
+/**
  * Retrieve credit notes settings.
  */
 export function useSettingsCreditNotes(props) {

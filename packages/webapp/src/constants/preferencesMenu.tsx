@@ -23,7 +23,7 @@ export const PreferencesMenu = [
   },
   {
     text: 'Payment Methods',
-    href: '/preferences/payment-methods'
+    href: '/preferences/payment-methods',
   },
   {
     text: <T id={'preferences.estimates'} />,
@@ -57,6 +57,11 @@ export const PreferencesMenu = [
     text: <T id={'accountant'} />,
     disabled: false,
     href: '/preferences/accountant',
+  },
+  {
+    text: 'AI Bookkeeper',
+    disabled: false,
+    href: '/preferences/ai-bookkeeper',
   },
   {
     text: <T id={'items'} />,

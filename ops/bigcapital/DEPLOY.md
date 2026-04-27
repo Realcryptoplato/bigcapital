@@ -25,25 +25,28 @@ It avoids port conflicts by binding Bigcapital's internal proxy only to
    If Tailscale HTTPS is healthy, use `https://vultr.taild355d6.ts.net`.
    If Tailscale certificate provisioning is broken, use the HTTP tailnet URL instead.
 3. Leave `PLAID_LINK_WEBHOOK` empty for the first pass.
-4. Run migrations once:
+4. Leave `AI_API_KEY`/`OPENAI_API_KEY` empty until the AI bookkeeper is ready
+   to call the provider. Local Codex auth is not used by the deployed server;
+   the server should get explicit API credentials through `.env`.
+5. Run migrations once:
 
 ```sh
 docker compose --env-file .env -f docker-compose.vps.yml --profile tools run --rm migrate
 ```
 
-5. Start the app:
+6. Start the app:
 
 ```sh
 docker compose --env-file .env -f docker-compose.vps.yml up -d
 ```
 
-6. Expose it privately over Tailscale HTTPS if your tailnet can issue a cert:
+7. Expose it privately over Tailscale HTTPS if your tailnet can issue a cert:
 
 ```sh
 tailscale serve --bg 443 http://127.0.0.1:${BIGCAPITAL_PROXY_PORT}
 ```
 
-7. Open:
+8. Open:
 
 ```text
 https://vultr.taild355d6.ts.net
@@ -77,3 +80,25 @@ Plaid initial linking is not blocked by leaving the webhook blank, because this
 app exchanges the `public_token` from the frontend and immediately creates the
 Plaid item server-side. Automatic transaction update webhooks do require a
 public HTTPS endpoint.
+
+## AI Bookkeeper
+
+The AI bookkeeper has two configuration layers:
+
+- Deployment/provider config in `.env`: model, API key, batch mode, parser
+  toggles, and global default thresholds.
+- Tenant settings in Bigcapital Preferences: per-client auto-mode policy,
+  interview/chat behavior, review thresholds, Amazon parsing, and tax-tools
+  enablement.
+
+Recommended first production posture:
+
+- `AI_CLASSIFICATION_MODE=batch`
+- `BOOKKEEPER_AUTO_MODE=false`
+- `BOOKKEEPER_CLASSIFY_ALL_TRANSACTIONS=true`
+- `BOOKKEEPER_INTERVIEW_ENABLED=true`
+- `BOOKKEEPER_BULK_CLASSIFICATION_ENABLED=true`
+- `BOOKKEEPER_AUTO_POST_THRESHOLD=0.92`
+
+That lets the system classify and queue review suggestions before it starts
+posting automatically.

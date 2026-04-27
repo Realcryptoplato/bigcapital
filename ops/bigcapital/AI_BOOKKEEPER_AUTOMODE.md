@@ -18,21 +18,24 @@ Humans should mainly provide business context, policy preferences, and overrides
 ## Operating Loop
 
 1. Plaid sync imports uncategorized transactions.
-2. Existing deterministic rules run first.
-3. The AI classifier evaluates every remaining transaction against:
+2. Supplemental parsers enrich transactions where available.
+   Examples: Amazon order history for `AMZN MKTP`, receipt parsers, tax workbook parsers.
+3. Existing deterministic rules run first.
+4. The AI classifier evaluates every remaining transaction against:
    - organization metadata
    - chart of accounts
    - prior confirmed classifications
    - client policy profile
    - Plaid transaction details
+   - parser-enriched merchant/order details
    - year-to-date budgets and prior-year comparisons
-4. The AI chooses one of four outcomes:
+5. The AI chooses one of four outcomes:
    - Auto-categorize because confidence is high and policy is clear.
    - Auto-create a missing expense account, then categorize.
    - Create or update a deterministic rule for a recurring pattern.
    - Ask a question because the transaction is ambiguous, high-impact, or policy-sensitive.
-5. Review outcomes feed back into the client policy profile and future rules.
-6. Reports become generated views over a continuously maintained ledger, not a separate cleanup project.
+6. Review outcomes feed back into the client policy profile and future rules.
+7. Reports become generated views over a continuously maintained ledger, not a separate cleanup project.
 
 ## Client Policy Profile
 
@@ -48,6 +51,7 @@ Suggested fields:
 - Known recurring vendors: expected category, memo convention, rule pattern.
 - Thresholds: auto-post confidence, require-review amount, grey-area categories, budget targets.
 - Reporting preferences: cash/accrual assumptions, tax categories, monthly close cadence.
+- Integration preferences: Amazon parser, receipt parser, tax-tools parser.
 - Open questions: unresolved facts the AI needs before it can safely proceed.
 
 ## Narrative Interface
@@ -65,6 +69,22 @@ Core views:
 
 The chat should not be a generic chatbot. It should be wired to bookkeeping tools: classify transactions, explain reports, update policy, create rules, create accounts, and queue review questions.
 
+## Setup And Interview Flow
+
+The first-run experience should feel like onboarding a bookkeeper, not filling out a long settings page.
+
+Recommended flow:
+
+1. Ask for the business model and tax posture in plain language.
+2. Ask about owner spending, reimbursements, vehicles, home office, meals, travel, contractors, and inventory.
+3. Connect bank and credit card feeds.
+4. Connect optional enrichment sources, starting with Amazon order parsing.
+5. Run a first-pass classification in review-only mode.
+6. Show the top unresolved questions, grouped by decision impact.
+7. Let the user approve a batch and convert confirmed patterns into durable policy.
+
+The AI should ask fewer, better questions. It should avoid asking about every transaction when a higher-level policy answer can resolve a whole class of transactions.
+
 ## Classification Policy
 
 Suggested initial thresholds:
@@ -80,6 +100,52 @@ Examples:
 - `STARBUCKS`, `CHIPOTLE`, `CAVA`, and other restaurants should classify to meals based on merchant type and policy, without one rule per restaurant.
 - `CHEVRON` may classify as auto expense for a business with vehicle policy, but should ask or apply stricter handling when the client's auto expense target is close to being exceeded.
 - `AMZN MKTP` should often require more context unless receipts, historical pattern, or memo detail make the category clear.
+
+## Bulk Classification
+
+Large imports should default to bulk classification because the classifier needs repeated vendors, period totals, and outliers in the same context.
+
+Batch input should include:
+
+- transaction batch
+- account metadata
+- chart of accounts
+- client policy profile
+- similar prior decisions
+- parser-enriched details
+- target budgets and prior-year comparisons
+
+Batch output should be normalized into individual `bookkeeper_suggestions` rows with the same confidence, rationale, and audit fields used by realtime classification.
+
+Realtime classification remains useful for small manual refreshes, one-off transactions, and chat-driven reclassification.
+
+## Amazon Parser Integration
+
+Amazon data should be treated as enrichment, not as a separate bookkeeping path.
+
+Expected flow:
+
+1. Match `AMZN`, `Amazon Marketplace`, or card statement transactions to imported Amazon orders.
+2. Extract item-level descriptions, quantities, tax, shipping, gift cards, refunds, and business/personal ambiguity.
+3. Feed enriched order lines into the AI classifier.
+4. Split transactions when one Amazon charge contains mixed categories.
+5. Ask the user only when item descriptions or purchase context are still ambiguous.
+
+The parser should write normalized enrichment records linked to the uncategorized transaction so the AI decision remains auditable.
+
+## Tax-Tools Integration
+
+Tax prep should be an add-on module after bookkeeping auto-mode is stable.
+
+The tax-tools repo can become:
+
+- annual filing checklist
+- source document tracker
+- workbook parser
+- tax category review workflow
+- export package builder for CPA/tax filing
+
+The key integration point is the bookkeeper profile and decision audit trail. Tax prep should consume categorized transactions and unresolved policy questions; it should not duplicate the classifier.
 
 ## Rule Creation
 
@@ -147,10 +213,15 @@ Recommended server modules:
   - review inbox and decision capture
 - `BookkeeperChatModule`
   - narrative chat interface with tool calls
+- `BookkeeperParserModule`
+  - Amazon parser, receipt parser, and future enrichment adapters
+- `BookkeeperTaxToolsModule`
+  - tax prep checklist and workbook parser hooks
 
 Main integration points:
 
 - After Plaid transaction sync, run classification for new uncategorized transactions.
+- Before classification, attach parser enrichment when a parser is enabled.
 - In the existing autofill endpoint, surface pending AI suggestions and rationales.
 - In categorization commands, record whether the decision came from AI, a user, or a rule.
 - In bank rule creation, store provenance for AI-generated rules.
@@ -162,6 +233,7 @@ The LLM should be a constrained reasoner, not the system of record.
 Input:
 
 - transaction description, payee, amount, date, account type, Plaid category when available
+- parser enrichment such as Amazon order lines or receipts
 - chart of accounts
 - client policy profile
 - similar confirmed transactions
@@ -218,12 +290,24 @@ Status: initial version started.
 - Let the user give policy instructions in natural language.
 - Convert answers into structured profile updates and classification policy.
 
-### Phase 6: Close And Reports Agent
+### Phase 6: Amazon And Document Enrichment
+
+- Integrate Amazon parser as a transaction enrichment source.
+- Add split suggestions for mixed-order transactions.
+- Store parser evidence on each AI decision.
+
+### Phase 7: Close And Reports Agent
 
 - Monthly close checklist.
 - Report anomaly detection.
 - Prior-year and budget comparisons.
 - Explainable P&L, balance sheet, and cash-flow summaries.
+
+### Phase 8: Tax Prep Add-On
+
+- Integrate tax-tools checklist and workbook parser.
+- Add tax review states for grey-area classifications.
+- Export tax prep packages from classified books and collected documents.
 
 ## Immediate Next Build
 
